@@ -286,6 +286,75 @@ export class ApiService {
           }
         );
 
+        // 6. Supabase Postgres Replication changes for Books Module
+        channel.on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'books', filter: `couple_id=eq.${coupleId}` },
+          (payload: any) => {
+            this.dispatchCoupleEvent('book_added', mapRowKeysToCamel(payload.new));
+          }
+        );
+
+        // 7. Supabase Postgres Replication changes for Reading Progress
+        channel.on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'reading_progress' },
+          (payload: any) => {
+            if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+              this.dispatchCoupleEvent('reading_progress_updated', mapRowKeysToCamel(payload.new));
+            }
+          }
+        );
+
+        // 8. Supabase Postgres Replication changes for Bookmarks
+        channel.on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'bookmarks' },
+          (payload: any) => {
+            this.dispatchCoupleEvent('bookmark_added', mapRowKeysToCamel(payload.new));
+          }
+        );
+
+        channel.on(
+          'postgres_changes',
+          { event: 'DELETE', schema: 'public', table: 'bookmarks' },
+          (payload: any) => {
+            this.dispatchCoupleEvent('bookmark_deleted', {
+              id: payload.old?.id,
+              bookmarkId: payload.old?.id
+            });
+          }
+        );
+
+        // 9. Supabase Postgres Replication changes for Cycle Logs
+        channel.on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'cycle_logs' },
+          (payload: any) => {
+            if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+              this.dispatchCoupleEvent('cycle_updated', mapRowKeysToCamel(payload.new));
+            }
+          }
+        );
+
+        // 10. Supabase Postgres Replication changes for Couples
+        channel.on(
+          'postgres_changes',
+          { event: 'UPDATE', schema: 'public', table: 'couples', filter: `id=eq.${coupleId}` },
+          (payload: any) => {
+            this.dispatchCoupleEvent('couple_updated', mapRowKeysToCamel(payload.new));
+          }
+        );
+
+        // 11. Supabase Postgres Replication changes for App Notifications
+        channel.on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'app_notifications', filter: `couple_id=eq.${coupleId}` },
+          (payload: any) => {
+            this.dispatchCoupleEvent('notification_added', mapRowKeysToCamel(payload.new));
+          }
+        );
+
         channel.subscribe((status: string) => {
           console.log(`[Supabase Realtime] couple-room-${coupleId} status:`, status);
         });
@@ -303,6 +372,47 @@ export class ApiService {
 
   // --- AUTH & PROFILES ---
   static async login(email: string, password?: string): Promise<{ user: UserProfile; couple: Couple | null }> {
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: email.trim().toLowerCase(),
+          password: password || ''
+        });
+
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        if (data.user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', data.user.id)
+            .maybeSingle();
+
+          const userObj = profile ? mapRowKeysToCamel<UserProfile>(profile) : {
+            id: data.user.id,
+            email: data.user.email || email,
+            displayName: data.user.user_metadata?.display_name || email.split('@')[0],
+            username: data.user.user_metadata?.username || email.split('@')[0],
+            avatarUrl: data.user.user_metadata?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+            timezone: 'UTC',
+            coupleId: profile?.couple_id || null,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          };
+
+          const couple = (userObj as any).coupleId ? await this.getCouple((userObj as any).coupleId) : null;
+
+          return { user: userObj, couple: couple?.couple || null };
+        }
+      } catch (err: any) {
+        console.warn('Supabase login error:', err);
+        // Fall back to server API
+      }
+    }
+
     const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -316,6 +426,53 @@ export class ApiService {
   }
 
   static async register(data: Partial<UserProfile>): Promise<{ user: UserProfile; couple: Couple | null }> {
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: data.email?.trim().toLowerCase() || '',
+          password: data.password || '',
+          options: {
+            data: {
+              display_name: data.displayName
+            }
+          }
+        });
+
+        if (authError) {
+          throw new Error(authError.message);
+        }
+
+        if (authData.user) {
+          const profileData = {
+            id: authData.user.id,
+            email: data.email || authData.user.email,
+            display_name: data.displayName || authData.user.email?.split('@')[0],
+            username: data.username || (data.displayName || authData.user.email?.split('@')[0]).toLowerCase(),
+            avatar_url: data.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+            date_of_birth: data.dateOfBirth,
+            timezone: data.timezone || 'UTC',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          };
+
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .upsert(profileData);
+
+          if (profileError) {
+            console.warn('Profile upsert error:', profileError);
+          }
+
+          const userObj = mapRowKeysToCamel<UserProfile>(profileData);
+          return { user: userObj, couple: null };
+        }
+      } catch (err: any) {
+        console.warn('Supabase register error:', err);
+        // Fall back to server API
+      }
+    }
+
     const res = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -329,6 +486,37 @@ export class ApiService {
   }
 
   static async updateProfile(data: Partial<UserProfile> & { userId: string }): Promise<{ user: UserProfile }> {
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        const updateData: any = {};
+        if (data.displayName) updateData.display_name = data.displayName;
+        if (data.username) updateData.username = data.username;
+        if (data.avatarUrl) updateData.avatar_url = data.avatarUrl;
+        if (data.dateOfBirth) updateData.date_of_birth = data.dateOfBirth;
+        if (data.timezone) updateData.timezone = data.timezone;
+        updateData.updated_at = new Date().toISOString();
+
+        const { data: updated, error } = await supabase
+          .from('profiles')
+          .update(updateData)
+          .eq('id', data.userId)
+          .select()
+          .maybeSingle();
+
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        if (updated) {
+          return { user: mapRowKeysToCamel<UserProfile>(updated) };
+        }
+      } catch (err: any) {
+        console.warn('Supabase updateProfile error:', err);
+        // Fall back to server API
+      }
+    }
+
     const res = await fetch('/api/auth/profile', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -359,6 +547,72 @@ export class ApiService {
 
   // --- COUPLE SANCTUARY ---
   static async createCouple(userId: string, relationshipStartDate?: string): Promise<{ couple: Couple; user: UserProfile }> {
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        // Generate invite code
+        const codeChars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let inviteCode = 'US-';
+        for (let i = 0; i < 6; i++) {
+          inviteCode += codeChars.charAt(Math.floor(Math.random() * codeChars.length));
+        }
+
+        // Create couple
+        const { data: coupleData, error: coupleError } = await supabase
+          .from('couples')
+          .insert({
+            invite_code: inviteCode,
+            invite_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+            relationship_start_date: relationshipStartDate || new Date().toISOString().split('T')[0]
+          })
+          .select()
+          .maybeSingle();
+
+        if (coupleError || !coupleData) {
+          throw new Error('Failed to create couple');
+        }
+
+        // Add user to couple_members
+        const { error: memberError } = await supabase
+          .from('couple_members')
+          .insert({
+            couple_id: coupleData.id,
+            user_id: userId,
+            role: 'creator'
+          });
+
+        if (memberError) {
+          console.warn('Error adding user to couple_members:', memberError);
+        }
+
+        // Update user's couple_id in profiles
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ couple_id: coupleData.id })
+          .eq('id', userId);
+
+        if (updateError) {
+          console.warn('Error updating user profile:', updateError);
+        }
+
+        // Fetch updated user profile
+        const { data: userData } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .maybeSingle();
+
+        const userObj = userData ? mapRowKeysToCamel<UserProfile>(userData) : null;
+        const coupleObj = mapRowKeysToCamel<Couple>(coupleData);
+        coupleObj.members = userObj ? [userObj] : [];
+
+        return { couple: coupleObj, user: userObj || { id: userId, email: '', displayName: '', username: '', avatarUrl: '', timezone: 'UTC', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() } };
+      } catch (err: any) {
+        console.warn('Supabase createCouple error:', err);
+        // Fall back to server API
+      }
+    }
+
     const res = await fetch('/api/couples/create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -372,6 +626,91 @@ export class ApiService {
   }
 
   static async joinCouple(userId: string, inviteCode: string): Promise<{ couple: Couple; user: UserProfile }> {
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        // Find couple by invite code
+        const { data: coupleData, error: coupleError } = await supabase
+          .from('couples')
+          .select('*')
+          .eq('invite_code', inviteCode.trim().toUpperCase())
+          .maybeSingle();
+
+        if (coupleError || !coupleData) {
+          throw new Error('Invalid or expired invite code');
+        }
+
+        // Check if couple already has 2 members
+        const { data: members, error: membersError } = await supabase
+          .from('couple_members')
+          .select('*')
+          .eq('couple_id', coupleData.id);
+
+        if (membersError) {
+          console.warn('Error checking couple members:', membersError);
+        }
+
+        if (members && members.length >= 2 && !members.some(m => m.user_id === userId)) {
+          throw new Error('This couple sanctuary is already full (maximum 2 partners).');
+        }
+
+        // Check if user is already a member
+        const alreadyMember = members?.some(m => m.user_id === userId);
+        if (!alreadyMember) {
+          // Add user to couple_members
+          const { error: insertError } = await supabase
+            .from('couple_members')
+            .insert({
+              couple_id: coupleData.id,
+              user_id: userId,
+              role: 'partner'
+            });
+
+          if (insertError) {
+            console.warn('Error adding user to couple:', insertError);
+          }
+
+          // Update user's couple_id in profiles
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ couple_id: coupleData.id })
+            .eq('id', userId);
+
+          if (updateError) {
+            console.warn('Error updating user profile:', updateError);
+          }
+        }
+
+        // Fetch updated couple with members
+        const { data: updatedCouple } = await supabase
+          .from('couples')
+          .select('*')
+          .eq('id', coupleData.id)
+          .maybeSingle();
+
+        const { data: allMembers } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('couple_id', coupleData.id);
+
+        const coupleObj = mapRowKeysToCamel<Couple>(updatedCouple);
+        coupleObj.members = allMembers ? allMembers.map(mapRowKeysToCamel<UserProfile>) : [];
+
+        const { data: userData } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .maybeSingle();
+
+        const userObj = userData ? mapRowKeysToCamel<UserProfile>(userData) : null;
+
+        return { couple: coupleObj, user: userObj || { id: userId, email: '', displayName: '', username: '', avatarUrl: '', timezone: 'UTC', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() } };
+      } catch (err: any) {
+        console.warn('Supabase joinCouple error:', err);
+        // Fall back to server API
+      }
+    }
+
     const res = await fetch('/api/couples/join', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -446,6 +785,26 @@ export class ApiService {
     senderName?: string;
     text?: string;
   }): Promise<{ success: boolean; senderName: string; text: string }> {
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        const channel = supabase.channel(`couple-${data.coupleId}`);
+        await channel.send({
+          type: 'broadcast',
+          event: 'user_nudge',
+          payload: {
+            senderId: data.senderId,
+            senderName: data.senderName || 'Partner',
+            text: data.text || 'is sending you a warm loving embrace ❤️',
+            timestamp: new Date().toISOString()
+          }
+        });
+        return { success: true, senderName: data.senderName || 'Partner', text: data.text || 'is sending you a warm loving embrace ❤️' };
+      } catch (err) {
+        console.warn('Supabase sendLoveNudge notice:', err);
+      }
+    }
+
     const res = await fetch('/api/couples/nudge', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -534,6 +893,42 @@ export class ApiService {
   }
 
   static async reactToMessage(messageId: string, userId: string, emoji: string): Promise<ChatMessage> {
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        const { data: message } = await supabase
+          .from('chat_messages')
+          .select('*')
+          .eq('id', messageId)
+          .maybeSingle();
+
+        if (message) {
+          const reactions = message.reactions || {};
+          if (!reactions[emoji]) reactions[emoji] = [];
+          const existingIdx = reactions[emoji].indexOf(userId);
+          if (existingIdx >= 0) {
+            reactions[emoji].splice(existingIdx, 1);
+            if (reactions[emoji].length === 0) delete reactions[emoji];
+          } else {
+            reactions[emoji].push(userId);
+          }
+
+          const { data: updated } = await supabase
+            .from('chat_messages')
+            .update({ reactions, updated_at: new Date().toISOString() })
+            .eq('id', messageId)
+            .select()
+            .maybeSingle();
+
+          if (updated) {
+            return mapRowKeysToCamel<ChatMessage>(updated);
+          }
+        }
+      } catch (err) {
+        console.warn('Supabase reactToMessage notice:', err);
+      }
+    }
+
     const res = await fetch('/api/chat/messages/react', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -862,6 +1257,42 @@ export class ApiService {
   }
 
   static async reactToPhoto(photoId: string, userId: string, emoji: string): Promise<PhotoMemory> {
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        const { data: photo } = await supabase
+          .from('photos')
+          .select('*')
+          .eq('id', photoId)
+          .maybeSingle();
+
+        if (photo) {
+          const reactions = photo.reactions || {};
+          if (!reactions[emoji]) reactions[emoji] = [];
+          const existingIdx = reactions[emoji].indexOf(userId);
+          if (existingIdx >= 0) {
+            reactions[emoji].splice(existingIdx, 1);
+            if (reactions[emoji].length === 0) delete reactions[emoji];
+          } else {
+            reactions[emoji].push(userId);
+          }
+
+          const { data: updated } = await supabase
+            .from('photos')
+            .update({ reactions, updated_at: new Date().toISOString() })
+            .eq('id', photoId)
+            .select()
+            .maybeSingle();
+
+          if (updated) {
+            return mapRowKeysToCamel<PhotoMemory>(updated);
+          }
+        }
+      } catch (err) {
+        console.warn('Supabase reactToPhoto notice:', err);
+      }
+    }
+
     const res = await fetch('/api/photos/react', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -871,6 +1302,42 @@ export class ApiService {
   }
 
   static async commentPhoto(photoId: string, userId: string, userName: string, text: string, userAvatar?: string): Promise<PhotoMemory> {
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        const { data: photo } = await supabase
+          .from('photos')
+          .select('*')
+          .eq('id', photoId)
+          .maybeSingle();
+
+        if (photo) {
+          const comments = photo.comments || [];
+          comments.push({
+            id: `comment-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
+            userId,
+            userName,
+            text,
+            userAvatar,
+            timestamp: new Date().toISOString()
+          });
+
+          const { data: updated } = await supabase
+            .from('photos')
+            .update({ comments, updated_at: new Date().toISOString() })
+            .eq('id', photoId)
+            .select()
+            .maybeSingle();
+
+          if (updated) {
+            return mapRowKeysToCamel<PhotoMemory>(updated);
+          }
+        }
+      } catch (err) {
+        console.warn('Supabase commentPhoto notice:', err);
+      }
+    }
+
     const res = await fetch('/api/photos/comment', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1077,6 +1544,83 @@ export class ApiService {
   }
 
   static async getPartnerCycleSummary(coupleId: string, userId: string): Promise<CyclePartnerSummary | null> {
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        // Get partner's cycle settings
+        const { data: members } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('couple_id', coupleId);
+
+        const partner = members?.find(m => m.id !== userId);
+        if (!partner) return null;
+
+        const { data: settings } = await supabase
+          .from('cycle_settings')
+          .select('*')
+          .eq('user_id', partner.id)
+          .maybeSingle();
+
+        if (!settings) return null;
+
+        // Get partner's recent cycle logs
+        const { data: logs } = await supabase
+          .from('cycle_logs')
+          .select('*')
+          .eq('user_id', partner.id)
+          .order('date', { ascending: false })
+          .limit(30);
+
+        // Calculate cycle summary
+        const cycleLength = settings.cycle_length_days || 28;
+        const periodLength = settings.period_length_days || 5;
+        const lastStart = new Date(settings.last_period_start_date);
+        const now = new Date();
+        const diffDays = Math.floor((now.getTime() - lastStart.getTime()) / (1000 * 60 * 60 * 24));
+        const cycleDay = Math.max(1, (diffDays % cycleLength) + 1);
+        const daysLeft = cycleLength - cycleDay + 1;
+
+        const nextPeriod = new Date(lastStart.getTime() + Math.ceil(diffDays / cycleLength) * cycleLength * 86400000);
+
+        let phase: any = 'follicular';
+        let phaseDisplayName = 'Follicular (Rising Energy)';
+        let supportTips: string[] = ['Plan an exciting date or try something new together.'];
+
+        if (cycleDay <= periodLength) {
+          phase = 'menstrual';
+          phaseDisplayName = 'Menstrual (Rest & Nurture)';
+          supportTips = ['Bring a warm beverage, heated blanket, or gentle back rub.', 'Keep evening plans relaxed and pressure-free.'];
+        } else if (cycleDay >= 12 && cycleDay <= 16) {
+          phase = 'ovulation';
+          phaseDisplayName = 'Ovulation (Peak Connection)';
+          supportTips = ['High romantic energy; great for deep conversations and date nights.'];
+        } else if (cycleDay > 16) {
+          phase = 'luteal';
+          phaseDisplayName = 'Luteal (Cozy Comfort)';
+          supportTips = ['Offer extra hugs, reassurance, and favorite comfort snacks.'];
+        }
+
+        const todayStr = now.toISOString().split('T')[0];
+        const todayLog = logs?.find(l => l.date === todayStr);
+
+        return {
+          phase,
+          phaseDisplayName,
+          cycleDay,
+          nextPeriodEstimateDate: nextPeriod.toISOString().split('T')[0],
+          daysUntilNextPeriod: Math.max(0, daysLeft),
+          reportedMoods: todayLog?.moods || [],
+          reportedSymptoms: todayLog?.symptoms ? todayLog.symptoms.filter((s: string) => settings.shared_symptoms?.includes(s)) : [],
+          energyLevel: todayLog?.energy_level || 3,
+          supportTips,
+          canViewFull: settings.partner_sharing_level === 'full'
+        };
+      } catch (err) {
+        console.warn('Supabase getPartnerCycleSummary notice:', err);
+      }
+    }
+
     const res = await fetch(`/api/cycle/partner-summary?coupleId=${coupleId}&userId=${userId}`);
     return res.json();
   }

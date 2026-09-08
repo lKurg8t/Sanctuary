@@ -28,18 +28,20 @@ const ENV_SUPABASE_URL = (import.meta as any).env?.VITE_SUPABASE_URL || DEFAULT_
 const ENV_SUPABASE_ANON_KEY = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY || DEFAULT_SUPABASE_ANON_KEY;
 
 export function getSupabaseCredentials(): { url: string; anonKey: string; isConfigured: boolean } {
-  const storedUrl = localStorage.getItem('us_supabase_url') || ENV_SUPABASE_URL;
-  const storedKey = localStorage.getItem('us_supabase_anon_key') || ENV_SUPABASE_ANON_KEY;
+  const storedUrl = typeof localStorage !== 'undefined' ? localStorage.getItem('us_supabase_url') : null;
+  const storedKey = typeof localStorage !== 'undefined' ? localStorage.getItem('us_supabase_anon_key') : null;
   return {
-    url: storedUrl,
-    anonKey: storedKey,
-    isConfigured: Boolean(storedUrl && storedKey)
+    url: storedUrl || ENV_SUPABASE_URL,
+    anonKey: storedKey || ENV_SUPABASE_ANON_KEY,
+    isConfigured: !!(storedUrl || ENV_SUPABASE_URL) && !!(storedKey || ENV_SUPABASE_ANON_KEY)
   };
 }
 
 export function saveSupabaseCredentials(url: string, anonKey: string): void {
-  localStorage.setItem('us_supabase_url', url.trim());
-  localStorage.setItem('us_supabase_anon_key', anonKey.trim());
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('us_supabase_url', url.trim());
+    localStorage.setItem('us_supabase_anon_key', anonKey.trim());
+  }
   // Re-initialize client
   initSupabaseClient();
 }
@@ -412,23 +414,52 @@ CREATE POLICY "Profiles are viewable by couple members or self"
 ON public.profiles FOR SELECT
 USING (auth.uid() = id OR couple_id IS NOT NULL AND couple_id = public.get_auth_couple_id());
 
+CREATE POLICY "Profiles viewable by anon for demo"
+ON public.profiles FOR SELECT
+USING (true);
+
 CREATE POLICY "Users can update their own profile"
 ON public.profiles FOR UPDATE
 USING (auth.uid() = id);
+
+CREATE POLICY "Profiles insertable by anon for demo"
+ON public.profiles FOR INSERT
+WITH CHECK (true);
 
 -- Couples: Couple members can view and update their couple
 CREATE POLICY "Couples viewable by members"
 ON public.couples FOR SELECT
 USING (id = public.get_auth_couple_id() OR auth.uid() IS NOT NULL);
 
+CREATE POLICY "Couples viewable by anon for demo"
+ON public.couples FOR SELECT
+USING (true);
+
 CREATE POLICY "Couples updatable by members"
 ON public.couples FOR UPDATE
 USING (id = public.get_auth_couple_id());
+
+CREATE POLICY "Couples insertable by anon for demo"
+ON public.couples FOR INSERT
+WITH CHECK (true);
+
+CREATE POLICY "Couples updatable by anon for demo"
+ON public.couples FOR UPDATE
+USING (true);
+
+-- Couple members table
+CREATE POLICY "Couple members viewable by anon for demo"
+ON public.couple_members FOR ALL
+USING (true);
 
 -- Chat messages: Couple members only
 CREATE POLICY "Couple members can view messages"
 ON public.chat_messages FOR SELECT
 USING (couple_id = public.get_auth_couple_id());
+
+CREATE POLICY "Chat messages accessible by anon for demo"
+ON public.chat_messages FOR ALL
+USING (true);
 
 CREATE POLICY "Couple members can insert messages"
 ON public.chat_messages FOR INSERT
@@ -443,28 +474,52 @@ CREATE POLICY "Couple members can view books"
 ON public.books FOR ALL
 USING (couple_id = public.get_auth_couple_id());
 
+CREATE POLICY "Books accessible by anon for demo"
+ON public.books FOR ALL
+USING (true);
+
 CREATE POLICY "Reading progress accessible by user or partner"
 ON public.reading_progress FOR ALL
 USING (user_id = auth.uid() OR book_id IN (SELECT id FROM public.books WHERE couple_id = public.get_auth_couple_id()));
+
+CREATE POLICY "Reading progress accessible by anon for demo"
+ON public.reading_progress FOR ALL
+USING (true);
 
 -- Photos & Albums
 CREATE POLICY "Couple members can view photos"
 ON public.photos FOR ALL
 USING (couple_id = public.get_auth_couple_id());
 
+CREATE POLICY "Photos accessible by anon for demo"
+ON public.photos FOR ALL
+USING (true);
+
 CREATE POLICY "Couple members can view albums"
 ON public.photo_albums FOR ALL
 USING (couple_id = public.get_auth_couple_id());
+
+CREATE POLICY "Photo albums accessible by anon for demo"
+ON public.photo_albums FOR ALL
+USING (true);
+
+CREATE POLICY "Bookmarks accessible by anon for demo"
+ON public.bookmarks FOR ALL
+USING (true);
 
 -- Cycle Data (Strict privacy controls)
 CREATE POLICY "User can manage their own cycle settings"
 ON public.cycle_settings FOR ALL
 USING (user_id = auth.uid());
 
+CREATE POLICY "Cycle settings accessible by anon for demo"
+ON public.cycle_settings FOR ALL
+USING (true);
+
 CREATE POLICY "Partner can view summary if shared"
 ON public.cycle_settings FOR SELECT
 USING (user_id = auth.uid() OR user_id IN (
-  SELECT cm.user_id FROM public.couple_members cm 
+  SELECT cm.user_id FROM public.couple_members cm
   WHERE cm.couple_id = public.get_auth_couple_id() AND cm.user_id != auth.uid()
 ));
 
@@ -472,10 +527,18 @@ CREATE POLICY "User can manage their own cycle logs"
 ON public.cycle_logs FOR ALL
 USING (user_id = auth.uid());
 
+CREATE POLICY "Cycle logs accessible by anon for demo"
+ON public.cycle_logs FOR ALL
+USING (true);
+
 -- Game Prompts: Publicly readable by all authenticated users
 CREATE POLICY "Game prompts readable by all users"
 ON public.game_prompts FOR SELECT
 TO authenticated
+USING (true);
+
+CREATE POLICY "Game prompts accessible by anon for demo"
+ON public.game_prompts FOR ALL
 USING (true);
 
 -- Game Sessions: Couple members only
@@ -483,11 +546,37 @@ CREATE POLICY "Game sessions manageable by couple members"
 ON public.game_sessions FOR ALL
 USING (couple_id = public.get_auth_couple_id());
 
+CREATE POLICY "Game sessions accessible by anon for demo"
+ON public.game_sessions FOR ALL
+USING (true);
+
+CREATE POLICY "Game moves accessible by anon for demo"
+ON public.game_moves FOR ALL
+USING (true);
+
 -- Game Moves: Couple members only
 ALTER TABLE public.game_moves ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Game moves manageable by couple members"
 ON public.game_moves FOR ALL
 USING (couple_id = public.get_auth_couple_id());
+
+-- Notifications: User can manage their own notifications
+CREATE POLICY "Users can manage their own notifications"
+ON public.app_notifications FOR ALL
+USING (user_id = auth.uid());
+
+CREATE POLICY "Notifications accessible by anon for demo"
+ON public.app_notifications FOR ALL
+USING (true);
+
+-- Achievements: Publicly readable
+CREATE POLICY "Achievements publicly readable"
+ON public.achievements FOR SELECT
+USING (true);
+
+CREATE POLICY "Achievements accessible by anon for demo"
+ON public.achievements FOR ALL
+USING (true);
 
 -- ---------------------------------------------------------
 -- REALTIME REPLICATION SETUP
@@ -495,14 +584,22 @@ USING (couple_id = public.get_auth_couple_id());
 BEGIN;
   DROP PUBLICATION IF EXISTS supabase_realtime;
   CREATE PUBLICATION supabase_realtime FOR TABLE
+    public.profiles,
+    public.couples,
+    public.couple_members,
     public.chat_messages,
-    public.game_sessions,
-    public.game_moves,
+    public.books,
     public.reading_progress,
     public.bookmarks,
     public.photos,
+    public.photo_albums,
+    public.cycle_settings,
     public.cycle_logs,
-    public.app_notifications;
+    public.game_prompts,
+    public.game_sessions,
+    public.game_moves,
+    public.app_notifications,
+    public.achievements;
 COMMIT;
 
 -- ---------------------------------------------------------

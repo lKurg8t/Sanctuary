@@ -1,0 +1,561 @@
+{
+  "users": [
+    {
+      "id": "user-liam-01",
+      "email": "liam@myspace.love",
+      "displayName": "Liam",
+      "username": "liam",
+      "avatarUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+      "timezone": "UTC",
+      "coupleId": "couple-space-01",
+      "role": "creator",
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "user-olivia-02",
+      "email": "olivia@myspace.love",
+      "displayName": "Olivia",
+      "username": "olivia",
+      "avatarUrl": "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80",
+      "timezone": "UTC",
+      "coupleId": "couple-space-01",
+      "role": "partner",
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "user-1788873044911-7pu27k",
+      "email": "lkurgat6@gmail.com",
+      "displayName": "Lkurgat6",
+      "username": "lkurgat6",
+      "avatarUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+      "timezone": "UTC",
+      "createdAt": "2026-09-08T13:10:44.911Z",
+      "updatedAt": "2026-09-08T13:10:44.911Z"
+    },
+    {
+      "id": "user-1788873227908-1su87y",
+      "email": "lkurgat20@gmail.com",
+      "displayName": "Lkurgat20",
+      "username": "lkurgat20",
+      "avatarUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+      "timezone": "UTC",
+      "createdAt": "2026-09-08T13:13:47.908Z",
+      "updatedAt": "2026-09-08T13:13:47.908Z",
+      "coupleId": "couple-1788873540881-b1llbt",
+      "role": "creator"
+    }
+  ],
+  "couples": [
+    {
+      "id": "couple-space-01",
+      "inviteCode": "LOVE-777-MYSPACE",
+      "inviteExpiresAt": "2030-01-01T00:00:00.000Z",
+      "relationshipStartDate": "2023-04-14T00:00:00.000Z",
+      "members": [
+        {
+          "id": "user-liam-01",
+          "email": "liam@myspace.love",
+          "displayName": "Liam",
+          "username": "liam",
+          "avatarUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+          "timezone": "UTC",
+          "coupleId": "couple-space-01",
+          "role": "creator",
+          "createdAt": "2024-01-01T00:00:00.000Z",
+          "updatedAt": "2024-01-01T00:00:00.000Z"
+        },
+        {
+          "id": "user-olivia-02",
+          "email": "olivia@myspace.love",
+          "displayName": "Olivia",
+          "username": "olivia",
+          "avatarUrl": "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80",
+          "timezone": "UTC",
+          "coupleId": "couple-space-01",
+          "role": "partner",
+          "createdAt": "2024-01-01T00:00:00.000Z",
+          "updatedAt": "2024-01-01T00:00:00.000Z"
+        }
+      ],
+      "createdAt": "2023-04-14T00:00:00.000Z",
+      "updatedAt": "2023-04-14T00:00:00.000Z"
+    },
+    {
+      "id": "couple-1788873540881-b1llbt",
+      "inviteCode": "US-X2SF9B",
+      "inviteExpiresAt": "2026-10-08T13:19:00.881Z",
+      "relationshipStartDate": "2026-09-08",
+      "members": [
+        {
+          "id": "user-1788873227908-1su87y",
+          "email": "lkurgat20@gmail.com",
+          "displayName": "Lkurgat20",
+          "username": "lkurgat20",
+          "avatarUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+          "timezone": "UTC",
+          "createdAt": "2026-09-08T13:13:47.908Z",
+          "updatedAt": "2026-09-08T13:13:47.908Z",
+          "coupleId": "couple-1788873540881-b1llbt",
+          "role": "creator"
+        }
+      ],
+      "createdAt": "2026-09-08T13:19:00.881Z",
+      "updatedAt": "2026-09-08T13:19:00.881Z"
+    }
+  ],
+  "messages": [],
+  "books": [],
+  "readingProgress": [],
+  "bookmarks": [],
+  "photos": [],
+  "albums": [],
+  "cycleLogs": [],
+  "cycleSettings": [
+    {
+      "userId": "user-olivia-02",
+      "cycleLengthDays": 28,
+      "periodLengthDays": 5,
+      "lastPeriodStartDate": "2026-08-25",
+      "partnerSharingLevel": "full",
+      "sharedSymptoms": [
+        "cramps",
+        "fatigue",
+        "mood changes"
+      ],
+      "showSupportCards": true
+    }
+  ],
+  "gamePrompts": [
+    {
+      "id": "tod-r-t1",
+      "gameType": "truth_or_dare",
+      "category": "romantic",
+      "prompt": "What was the exact moment you realized you were falling in love with me?",
+      "extraData": {
+        "type": "truth"
+      },
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.091Z"
+    },
+    {
+      "id": "tod-r-t2",
+      "gameType": "truth_or_dare",
+      "category": "romantic",
+      "prompt": "What is your favorite quiet memory of us just existing together?",
+      "extraData": {
+        "type": "truth"
+      },
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "tod-r-t3",
+      "gameType": "truth_or_dare",
+      "category": "romantic",
+      "prompt": "What is something small I do that always gives you butterflies?",
+      "extraData": {
+        "type": "truth"
+      },
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "tod-r-d1",
+      "gameType": "truth_or_dare",
+      "category": "romantic",
+      "prompt": "Look into my eyes for 60 seconds without speaking or looking away.",
+      "extraData": {
+        "type": "dare"
+      },
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "tod-r-d2",
+      "gameType": "truth_or_dare",
+      "category": "romantic",
+      "prompt": "Give me a gentle 3-minute shoulder or neck massage right now.",
+      "extraData": {
+        "type": "dare"
+      },
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "tod-d-t1",
+      "gameType": "truth_or_dare",
+      "category": "deep",
+      "prompt": "What is something you are currently working on within yourself that you need my patience with?",
+      "extraData": {
+        "type": "truth"
+      },
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "tod-d-t2",
+      "gameType": "truth_or_dare",
+      "category": "deep",
+      "prompt": "What does our future look like when you imagine us 10 years from now?",
+      "extraData": {
+        "type": "truth"
+      },
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "tod-d-d1",
+      "gameType": "truth_or_dare",
+      "category": "deep",
+      "prompt": "Hold my hands and tell me one thing you admire about the way I handle adversity.",
+      "extraData": {
+        "type": "dare"
+      },
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "tod-p-t1",
+      "gameType": "truth_or_dare",
+      "category": "playful",
+      "prompt": "If our relationship was a sitcom or romantic comedy, what would its title be?",
+      "extraData": {
+        "type": "truth"
+      },
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "tod-p-d1",
+      "gameType": "truth_or_dare",
+      "category": "playful",
+      "prompt": "Do your best dramatic impression of how I talk when I am sleepy.",
+      "extraData": {
+        "type": "dare"
+      },
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "tod-s-t1",
+      "gameType": "truth_or_dare",
+      "category": "spicy",
+      "prompt": "What outfit of mine is your absolute weakness?",
+      "extraData": {
+        "type": "truth"
+      },
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "tod-s-d1",
+      "gameType": "truth_or_dare",
+      "category": "spicy",
+      "prompt": "Give me a kiss on 3 different places: cheek, forehead, and collarbone.",
+      "extraData": {
+        "type": "dare"
+      },
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "wyr-1",
+      "gameType": "would_you_rather",
+      "category": "Travel & Lifestyle",
+      "prompt": "Spend a cozy week in a rainy cabin in the mountains with a fireplace OR Spend a sunny week in a private beachfront villa listening to ocean waves",
+      "extraData": {
+        "optionA": "Spend a cozy week in a rainy mountain cabin with a fireplace",
+        "optionB": "Spend a sunny week in a beachfront villa with ocean waves"
+      },
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "wyr-2",
+      "gameType": "would_you_rather",
+      "category": "Daily Romance",
+      "prompt": "Have breakfast in bed cooked by your partner every weekend OR Have an evening candlelit foot massage from your partner every Sunday",
+      "extraData": {
+        "optionA": "Have breakfast in bed cooked by your partner every weekend",
+        "optionB": "Have an evening candlelit foot massage every Sunday"
+      },
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "wyr-3",
+      "gameType": "would_you_rather",
+      "category": "Memories & Future",
+      "prompt": "Relive our very first date with all the exact initial butterflies OR Fast forward 20 years for 1 hour to see our future together",
+      "extraData": {
+        "optionA": "Relive our very first date with all the exact initial butterflies",
+        "optionB": "Fast forward 20 years for 1 hour to see our future together"
+      },
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "wyr-4",
+      "gameType": "would_you_rather",
+      "category": "Adventure",
+      "prompt": "Take an unplanned cross-country road trip with no map OR Book a luxury 5-star surprise trip planned entirely by your partner",
+      "extraData": {
+        "optionA": "Take an unplanned cross-country road trip with no map",
+        "optionB": "Book a luxury 5-star surprise trip planned entirely by your partner"
+      },
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "nhie-1",
+      "gameType": "never_have_i_ever",
+      "category": "Confessions",
+      "prompt": "Never have I ever pretended to be asleep just so you would cuddle me closer.",
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "nhie-2",
+      "gameType": "never_have_i_ever",
+      "category": "Confessions",
+      "prompt": "Never have I ever re-read our old text messages and smiled like an idiot.",
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "nhie-3",
+      "gameType": "never_have_i_ever",
+      "category": "Confessions",
+      "prompt": "Never have I ever bought something just because it reminded me of you.",
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "nhie-4",
+      "gameType": "never_have_i_ever",
+      "category": "Confessions",
+      "prompt": "Never have I ever daydreamed about our wedding or future home during work.",
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "hm-1",
+      "gameType": "hangman",
+      "category": "Romantic Dates",
+      "prompt": "SUNSET",
+      "extraData": {
+        "word": "SUNSET",
+        "hint": "Golden hour beauty we love watching together"
+      },
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "hm-2",
+      "gameType": "hangman",
+      "category": "Night Activities",
+      "prompt": "STARGAZING",
+      "extraData": {
+        "word": "STARGAZING",
+        "hint": "Looking up into the quiet infinite night"
+      },
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "hm-3",
+      "gameType": "hangman",
+      "category": "Atmosphere",
+      "prompt": "CANDLELIGHT",
+      "extraData": {
+        "word": "CANDLELIGHT",
+        "hint": "Warm flickering glow for dinner"
+      },
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "hm-4",
+      "gameType": "hangman",
+      "category": "Our Sanctuary",
+      "prompt": "SANCTUARY",
+      "extraData": {
+        "word": "SANCTUARY",
+        "hint": "A private peaceful haven safe from the world"
+      },
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "ep-1",
+      "gameType": "emoji_guess",
+      "category": "Famous Romantic Movie",
+      "prompt": "Titanic",
+      "extraData": {
+        "emojis": "🎬 🚢 ❄️ 💔 🚪",
+        "answer": "Titanic",
+        "hint": "Jack and Rose on the unsinkable ship"
+      },
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "ep-2",
+      "gameType": "emoji_guess",
+      "category": "Couple Aesthetic & Vibe",
+      "prompt": "Cozy Rainy Day",
+      "extraData": {
+        "emojis": "☕ 🌧️ 📖 🕯️ 🧦",
+        "answer": "Cozy Rainy Day",
+        "hint": "Warm drinks, books, and soft blankets while it pours"
+      },
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "ep-3",
+      "gameType": "emoji_guess",
+      "category": "Dream Vacation",
+      "prompt": "Paris Trip",
+      "extraData": {
+        "emojis": "✈️ 🗼 🥐 🍷 🎨",
+        "answer": "Paris Trip",
+        "hint": "City of lights, croissants, and the Eiffel Tower"
+      },
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "mm-1",
+      "gameType": "memory_match",
+      "category": "symbols",
+      "prompt": "💌",
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "mm-2",
+      "gameType": "memory_match",
+      "category": "symbols",
+      "prompt": "🌹",
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "mm-3",
+      "gameType": "memory_match",
+      "category": "symbols",
+      "prompt": "🥂",
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "mm-4",
+      "gameType": "memory_match",
+      "category": "symbols",
+      "prompt": "💍",
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "mm-5",
+      "gameType": "memory_match",
+      "category": "symbols",
+      "prompt": "🧸",
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "mm-6",
+      "gameType": "memory_match",
+      "category": "symbols",
+      "prompt": "🌅",
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "mm-7",
+      "gameType": "memory_match",
+      "category": "symbols",
+      "prompt": "🏕️",
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "mm-8",
+      "gameType": "memory_match",
+      "category": "symbols",
+      "prompt": "🍰",
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "dr-1",
+      "gameType": "daily_reflection",
+      "category": "daily",
+      "prompt": "What was one moment today where you felt deeply appreciated or thought of?",
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    },
+    {
+      "id": "dr-2",
+      "gameType": "daily_reflection",
+      "category": "daily",
+      "prompt": "What is one small thing I did recently that made you smile?",
+      "active": true,
+      "createdAt": "2026-09-08T13:07:36.098Z"
+    }
+  ],
+  "gameSessions": [],
+  "gameMoves": [],
+  "notifications": [],
+  "achievements": [
+    {
+      "id": "ach-first-message",
+      "title": "First Whisper",
+      "description": "Send your very first message in our private couple chat",
+      "icon": "MessageHeart",
+      "category": "chat",
+      "progress": 0,
+      "maxProgress": 1
+    },
+    {
+      "id": "ach-first-memory",
+      "title": "Memory Maker",
+      "description": "Upload your first shared photo to our memory vault",
+      "icon": "Camera",
+      "category": "memories",
+      "progress": 0,
+      "maxProgress": 1
+    },
+    {
+      "id": "ach-game-night",
+      "title": "Playful Hearts",
+      "description": "Play your first couple game together",
+      "icon": "Gamepad2",
+      "category": "games",
+      "progress": 0,
+      "maxProgress": 1
+    },
+    {
+      "id": "ach-bookworm",
+      "title": "Reading Partners",
+      "description": "Open a shared book and leave a partner bookmark",
+      "icon": "BookmarkCheck",
+      "category": "reading",
+      "progress": 0,
+      "maxProgress": 1
+    },
+    {
+      "id": "ach-7-day-streak",
+      "title": "Weekly Devotion",
+      "description": "Maintain a 7-day connection streak in My Space",
+      "icon": "Flame",
+      "category": "relationship",
+      "progress": 0,
+      "maxProgress": 7
+    }
+  ]
+}

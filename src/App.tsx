@@ -605,10 +605,26 @@ export default function App() {
     try {
       const res = await ApiService.joinCouple(currentUser.id, inviteInputCode.trim());
       setCouple(res.couple);
+      setCurrentUser(res.user);
       setShowInviteModal(false);
       confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+      await loadAppData(res.user);
     } catch (err: any) {
       alert(err.message || 'Failed to join sanctuary');
+    }
+  };
+
+  const handleCreateCouple = async () => {
+    if (!currentUser) return;
+    try {
+      const res = await ApiService.createCouple(currentUser.id);
+      setCouple(res.couple);
+      setCurrentUser(res.user);
+      setShowInviteModal(false);
+      confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+      await loadAppData(res.user);
+    } catch (err: any) {
+      alert(err.message || 'Failed to create couple sanctuary');
     }
   };
 
@@ -1051,7 +1067,7 @@ export default function App() {
       )}
 
       {/* 8. INVITE / LINK PARTNER MODAL */}
-      {showInviteModal && couple && (
+      {showInviteModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-stone-200 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between">
@@ -1060,7 +1076,7 @@ export default function App() {
                   <Link2 className="w-5 h-5" />
                 </div>
                 <h3 className="font-serif font-bold text-base text-stone-800">
-                  Link Partner to Sanctuary
+                  {couple ? 'Link Partner to Sanctuary' : 'Create Couple Sanctuary'}
                 </h3>
               </div>
               <button onClick={() => setShowInviteModal(false)} className="text-stone-400 hover:text-stone-600">
@@ -1068,49 +1084,89 @@ export default function App() {
               </button>
             </div>
 
-            <p className="text-xs text-stone-600 leading-relaxed">
-              Share your private invitation code with your partner, or enter their code to merge your couple sanctuary.
-            </p>
+            {couple ? (
+              <>
+                <p className="text-xs text-stone-600 leading-relaxed">
+                  Share your private invitation code with your partner, or enter their code to merge your couple sanctuary.
+                </p>
 
-            <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-center space-y-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-rose-600">Your Invitation Code</span>
-              <div className="text-2xl font-mono font-bold tracking-widest text-stone-800 select-all">
-                {couple.inviteCode}
-              </div>
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(couple.inviteCode);
-                  setCopiedInvite(true);
-                  setTimeout(() => setCopiedInvite(false), 2000);
-                }}
-                className="px-4 py-1.5 rounded-xl bg-rose-600 text-white font-semibold text-xs inline-flex items-center gap-1 shadow-xs"
-              >
-                {copiedInvite ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copiedInvite ? 'Code Copied!' : 'Copy Code'}</span>
-              </button>
-            </div>
+                <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-center space-y-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-rose-600">Your Invitation Code</span>
+                  <div className="text-2xl font-mono font-bold tracking-widest text-stone-800 select-all">
+                    {couple.inviteCode}
+                  </div>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(couple.inviteCode);
+                      setCopiedInvite(true);
+                      setTimeout(() => setCopiedInvite(false), 2000);
+                    }}
+                    className="px-4 py-1.5 rounded-xl bg-rose-600 text-white font-semibold text-xs inline-flex items-center gap-1 shadow-xs"
+                  >
+                    {copiedInvite ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copiedInvite ? 'Code Copied!' : 'Copy Code'}</span>
+                  </button>
+                </div>
 
-            <div className="relative flex py-1 items-center">
-              <div className="flex-grow border-t border-stone-200" />
-              <span className="flex-shrink mx-3 text-stone-400 text-xs uppercase font-bold">Or Join with Code</span>
-              <div className="flex-grow border-t border-stone-200" />
-            </div>
+                <div className="relative flex py-1 items-center">
+                  <div className="flex-grow border-t border-stone-200" />
+                  <span className="flex-shrink mx-3 text-stone-400 text-xs uppercase font-bold">Or Join with Code</span>
+                  <div className="flex-grow border-t border-stone-200" />
+                </div>
 
-            <form onSubmit={handleJoinCouple} className="space-y-3">
-              <input
-                type="text"
-                value={inviteInputCode}
-                onChange={e => setInviteInputCode(e.target.value)}
-                placeholder="Enter Partner's Code (e.g. US-XXXXXX)"
-                className="w-full px-3.5 py-2.5 text-xs bg-stone-50 rounded-xl border border-stone-200 focus:outline-none focus:ring-1 focus:ring-rose-400 text-center uppercase font-mono tracking-wider font-bold"
-              />
-              <button
-                type="submit"
-                className="w-full py-2.5 rounded-xl bg-stone-800 hover:bg-stone-900 text-white font-semibold text-xs transition-colors"
-              >
-                Join Couple Sanctuary
-              </button>
-            </form>
+                <form onSubmit={handleJoinCouple} className="space-y-3">
+                  <input
+                    type="text"
+                    value={inviteInputCode}
+                    onChange={e => setInviteInputCode(e.target.value)}
+                    placeholder="Enter Partner's Code (e.g. US-XXXXXX)"
+                    className="w-full px-3.5 py-2.5 text-xs bg-stone-50 rounded-xl border border-stone-200 focus:outline-none focus:ring-1 focus:ring-rose-400 text-center uppercase font-mono tracking-wider font-bold"
+                  />
+                  <button
+                    type="submit"
+                    className="w-full py-2.5 rounded-xl bg-stone-800 hover:bg-stone-900 text-white font-semibold text-xs transition-colors"
+                  >
+                    Join Couple Sanctuary
+                  </button>
+                </form>
+              </>
+            ) : (
+              <>
+                <p className="text-xs text-stone-600 leading-relaxed">
+                  Create a new couple sanctuary to share your private space with your partner, or join an existing sanctuary using their invite code.
+                </p>
+
+                <button
+                  onClick={handleCreateCouple}
+                  className="w-full py-3 rounded-xl bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-700 hover:to-rose-600 text-white font-semibold text-xs transition-all shadow-md shadow-rose-200 flex items-center justify-center gap-2"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span>Create New Couple Sanctuary</span>
+                </button>
+
+                <div className="relative flex py-1 items-center">
+                  <div className="flex-grow border-t border-stone-200" />
+                  <span className="flex-shrink mx-3 text-stone-400 text-xs uppercase font-bold">Or Join Existing</span>
+                  <div className="flex-grow border-t border-stone-200" />
+                </div>
+
+                <form onSubmit={handleJoinCouple} className="space-y-3">
+                  <input
+                    type="text"
+                    value={inviteInputCode}
+                    onChange={e => setInviteInputCode(e.target.value)}
+                    placeholder="Enter Partner's Code (e.g. US-XXXXXX)"
+                    className="w-full px-3.5 py-2.5 text-xs bg-stone-50 rounded-xl border border-stone-200 focus:outline-none focus:ring-1 focus:ring-rose-400 text-center uppercase font-mono tracking-wider font-bold"
+                  />
+                  <button
+                    type="submit"
+                    className="w-full py-2.5 rounded-xl bg-stone-800 hover:bg-stone-900 text-white font-semibold text-xs transition-colors"
+                  >
+                    Join Partner's Sanctuary
+                  </button>
+                </form>
+              </>
+            )}
           </div>
         </div>
       )}
