@@ -1,0 +1,6 @@
+{
+  "name": "My Space",
+  "description": "A private, real-time shared digital space for couples featuring shared dashboards, cycle tracking, private chat, shared library, photo memories, and multiplayer games.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
