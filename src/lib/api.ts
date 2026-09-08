@@ -425,7 +425,7 @@ export class ApiService {
     return res.json();
   }
 
-  static async register(data: Partial<UserProfile>): Promise<{ user: UserProfile; couple: Couple | null }> {
+  static async register(data: Partial<UserProfile> & { password?: string }): Promise<{ user: UserProfile; couple: Couple | null }> {
     const supabase = getSupabase();
     if (supabase) {
       try {
